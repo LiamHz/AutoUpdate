@@ -1,3 +1,5 @@
 *.pyc
 credentials.json
 AuthenticationCredentials.txt
+token.pickle
+mailing-list.txt

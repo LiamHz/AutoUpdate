@@ -4,16 +4,22 @@ import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+import random
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 # The ID and range of a sample spreadsheet.
-SPREADSHEET_ID = '1jHFtzPV8dUBlOpoXgBwnoLqb1d27KHyUZKDTqBNpe_8'
+COHORT_SPREADSHEET_IDs = ['1jHFtzPV8dUBlOpoXgBwnoLqb1d27KHyUZKDTqBNpe_8', '19bQjw_RzInIgFoMdHylQqXi05bp5p59TEIvwPxzXf1o', '1y85fw3YI9JIzoQDya0WewAWyMqhRAKy_ARgMeIhLQAc', '1or4TT9jHSMbT7Ey6ve1Jeb_bVhj-GxxelGjK0lYZlAk']
 RANGE_NAME = "'March'"
 WEEK = 4
 
 updates = []
+
+def pick_random_cohort(cohorts):
+    rand_index = random.randint(0, len(COHORT_SPREADSHEET_IDs) - 1)
+
+    return cohorts[rand_index], rand_index
 
 def get_updates():
     """
@@ -23,6 +29,9 @@ def get_updates():
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
+
+    SPREADSHEET_ID, cohort = pick_random_cohort(COHORT_SPREADSHEET_IDs)
+
     if os.path.exists('token.pickle'):
         with open('token.pickle', 'rb') as token:
             creds = pickle.load(token)
@@ -51,8 +60,13 @@ def get_updates():
     else:
         for row in values:
             try:
-                if row[0] != '' and row[WEEK+3] != '':
-                    updates.append([row[0], row[WEEK+3]])
+                # Cohort 1 has extra column for "ambition"
+                if cohort == 1:
+                    # Top row has headers for each column, including "name"
+                    if row[0] != '' and row[WEEK+3] != '' and row[0] != 'Name':
+                        updates.append([row[0], row[WEEK+3]])
+                elif row[0] != '' and row[WEEK+2] != '' and row[0] != 'Name':
+                        updates.append([row[0], row[WEEK+2]])
             # Ignore cell if empty
             except:
                 pass
