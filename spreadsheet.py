@@ -16,11 +16,6 @@ WEEK = 4
 
 updates = []
 
-def pick_random_cohort(cohorts):
-    rand_index = random.randint(0, len(COHORT_SPREADSHEET_IDs) - 1)
-
-    return cohorts[rand_index], rand_index
-
 def get_updates():
     """
     Save name and update of every person in a specific sheet
@@ -29,8 +24,6 @@ def get_updates():
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-
-    SPREADSHEET_ID, cohort = pick_random_cohort(COHORT_SPREADSHEET_IDs)
 
     if os.path.exists('token.pickle'):
         with open('token.pickle', 'rb') as token:
@@ -49,26 +42,28 @@ def get_updates():
 
     service = build('sheets', 'v4', credentials=creds)
 
-    # Call the Sheets API
-    sheet = service.spreadsheets()
-    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
-                                range=RANGE_NAME).execute()
-    values = result.get('values', [])
+    # Go through each cohort
+    for cohort in range(len(COHORT_SPREADSHEET_IDs)):
+        # Call the Sheets API
+        sheet = service.spreadsheets()
+        result = sheet.values().get(spreadsheetId=COHORT_SPREADSHEET_IDs[cohort],
+                                    range=RANGE_NAME).execute()
+        values = result.get('values', [])
 
-    if not values:
-        print('No data found.')
-    else:
-        for row in values:
-            try:
-                # Cohort 1 has extra column for "ambition"
-                if cohort == 1:
-                    # Top row has headers for each column, including "name"
-                    if row[0] != '' and row[WEEK+3] != '' and row[0] != 'Name':
-                        updates.append([row[0], row[WEEK+3]])
-                elif row[0] != '' and row[WEEK+2] != '' and row[0] != 'Name':
-                        updates.append([row[0], row[WEEK+2]])
-            # Ignore cell if empty
-            except:
-                pass
+        if not values:
+            print('No data found.')
+        else:
+            for row in values:
+                try:
+                    # Cohort 1 has extra column for "ambition"
+                    if cohort == 0:
+                        # Top row has headers for each column, including "name"
+                        if row[0] != '' and row[WEEK+3] != '' and row[0] != 'Name':
+                            updates.append([row[0], row[WEEK+3]])
+                    elif row[0] != '' and row[WEEK+2] != '' and row[0] != 'Name':
+                            updates.append([row[0], row[WEEK+2]])
+                # Ignore cell if empty
+                except:
+                    pass
 
     return updates

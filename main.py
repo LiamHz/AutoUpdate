@@ -3,4 +3,5 @@ from emailing import send_update
 
 if __name__ == '__main__':
     updates = get_updates()
-    send_update(updates)
+    print(len(updates))
+    # send_update(updates)
