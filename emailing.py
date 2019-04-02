@@ -58,11 +58,11 @@ def email_update(formatted_update, mailing_list):
 
     userIndex = 0
 
-    while userIndex < len(EMAIL_MAILING_LIST):
+    while userIndex < len(mailing_list):
 
         # Email results to self
         fromaddr = EMAIL_USERNAME
-        toaddr = EMAIL_MAILING_LIST[userIndex]
+        toaddr = mailing_list[userIndex]
 
         # Create message container
         msg = MIMEMultipart()
@@ -83,6 +83,7 @@ def email_update(formatted_update, mailing_list):
         server.quit()
 
         print("Sent email to", toaddr)
+        userIndex += 1
 
 # Main
 def send_update(updates):
